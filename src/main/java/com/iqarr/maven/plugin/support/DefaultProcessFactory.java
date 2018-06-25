@@ -110,8 +110,8 @@ public class DefaultProcessFactory extends AbstractProcessFactory {
                 if (sb == null) {
                     sb = new StringBuffer(strAll);
                 }
-                int ret = processCSSVersion(sb, 0, processSuccessFiles, jCVConfig);
-                int ret2 = processJSVersion(sb, 0, processSuccessFiles, jCVConfig);
+                int ret = processCSSVersion(sb, 0, processSuccessFiles, jCVConfig,pageInfo);
+                int ret2 = processJSVersion(sb, 0, processSuccessFiles, jCVConfig,pageInfo);
                 int ret3 = 0;
                 if (jCVConfig.isClearPageComment()) {
                     ret3 = processPageComment(sb, 0, jCVConfig);

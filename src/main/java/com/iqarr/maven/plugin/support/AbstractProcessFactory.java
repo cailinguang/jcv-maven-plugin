@@ -46,11 +46,13 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
 	
 	protected final static String HTML_JAVASCRIPT_LABLE_START = "<script";
 	protected final static String HTML_JAVASCRIPT_SRC = "th:src=";
+    protected final static String HTML_JAVASCRIPT_SRC_NEXT = "src=";
 	protected final static String HTML_JAVASCRIPT_END = ">";
 	
 	// css
 	protected final static String HTML_CSS_LABLE_START = "<link";
 	protected final static String HTML_CSS_LABLE_SRC = "th:href=";
+    protected final static String HTML_CSS_LABLE_SRC_NEXT = "href=";
 	protected final static String HTML_CSS_LABLE_END = ">";
 	
 	// comment
@@ -331,9 +333,9 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
      * @param jCVConfig
      * @return
      */
-    protected int processCSSVersion(StringBuffer html, int index, List<JCVFileInfo> processSuccessFiles, JCVConfig jCVConfig) {
+    protected int processCSSVersion(StringBuffer html, int index, List<JCVFileInfo> processSuccessFiles, JCVConfig jCVConfig,PageInfo pageInfo) {
         
-        return processVersion (html,index,processSuccessFiles,JCVFileInfo.CSS,jCVConfig);
+        return processVersion (html,index,processSuccessFiles,JCVFileInfo.CSS,jCVConfig,pageInfo);
     }
     
     
@@ -347,9 +349,9 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
     * @param jCVConfig
     * @return
     */
-    protected int processJSVersion(StringBuffer html, int index, List<JCVFileInfo> processSuccessFiles, JCVConfig jCVConfig) {
+    protected int processJSVersion(StringBuffer html, int index, List<JCVFileInfo> processSuccessFiles, JCVConfig jCVConfig,PageInfo pageInfo) {
         
-        return processVersion (html,index,processSuccessFiles,JCVFileInfo.JS,jCVConfig);
+        return processVersion (html,index,processSuccessFiles,JCVFileInfo.JS,jCVConfig,pageInfo);
     }
     
     
@@ -457,7 +459,7 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
      * @param jCVConfig the j cv config
      * @return the int
      */
-    private int processVersion(StringBuffer html, int index, List<JCVFileInfo> processSuccessFiles, final String fileType, final JCVConfig jCVConfig) {
+    private int processVersion(StringBuffer html, int index, List<JCVFileInfo> processSuccessFiles, final String fileType, final JCVConfig jCVConfig,final PageInfo pageInfo) {
         
         DocPosition dp = new DocPosition ();
         if (index == 0 || index == -1) {
@@ -472,6 +474,7 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
         if (JCVFileInfo.CSS.equals (fileType)) {
             dp.setStartLab (HTML_CSS_LABLE_START);
             dp.setEndLad (HTML_CSS_LABLE_SRC);
+            dp.setEndLadNext(HTML_CSS_LABLE_SRC_NEXT);
             dp.setCheckEndLad (HTML_CSS_LABLE_END);
             heardLenth = HTML_CSS_LABLE_START.length ();
             checkEndLable = HTML_CSS_LABLE_END;
@@ -479,6 +482,7 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
         else if (JCVFileInfo.JS.equals (fileType)) {
             dp.setStartLab (HTML_JAVASCRIPT_LABLE_START); // "<script"
             dp.setEndLad (HTML_JAVASCRIPT_SRC); // src=
+            dp.setEndLadNext(HTML_JAVASCRIPT_SRC_NEXT);
             dp.setCheckEndLad (HTML_JAVASCRIPT_END); // >
             heardLenth = HTML_JAVASCRIPT_LABLE_START.length ();
             checkEndLable = HTML_JAVASCRIPT_END;
@@ -490,7 +494,7 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
         getHtmllabDocposition (html,dp);
         if (dp.getEndPos () == -1 || !dp.isFindIt ()) {
             if (index < html.length () && dp.getStartPos () != -1) {
-                return  processVersion (html,dp.getStartPos () + heardLenth + 1,processSuccessFiles,fileType,jCVConfig);
+                return  processVersion (html,dp.getStartPos () + heardLenth + 1,processSuccessFiles,fileType,jCVConfig,pageInfo);
             }
             else {
                 return -1;
@@ -528,9 +532,9 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
         
         LoggerFactory.debug ("find " + fileType + " link:" + link);
         
-        processlink (html,dpsrc.getStartPos () - 1,dpsrc.getEndPos () - 1,link,fileType,processSuccessFiles,jCVConfig);
+        processlink (html,dpsrc.getStartPos () - 1,dpsrc.getEndPos () - 1,link,fileType,processSuccessFiles,jCVConfig,dp.isOldLad(),pageInfo);
         
-        int res = processVersion (html,dpsrc.getEndPos (),processSuccessFiles,fileType,jCVConfig);
+        int res = processVersion (html,dpsrc.getEndPos (),processSuccessFiles,fileType,jCVConfig,pageInfo);
         
         return res;
     }
@@ -547,7 +551,7 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
      * @param jCVConfig the j cv config
      * @return the int
      */
-    private int processlink(StringBuffer sb, int start, int end, final String historylink, final String fileType, List<JCVFileInfo> processSuccessFiles, final JCVConfig jCVConfig) {
+    private int processlink(StringBuffer sb, int start, int end, final String historylink, final String fileType, List<JCVFileInfo> processSuccessFiles, final JCVConfig jCVConfig,final boolean isOldLad,final PageInfo pageInfo) {
         
         JCVFileInfo jcvFileInfo = null;
         StringBuilder fullLink = new StringBuilder ();
@@ -599,28 +603,34 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
         else {
             //LoggerFactory.info ("historylink :" + historylink);
             //clg edit
-            Pattern pattern = Pattern.compile("([a-zA-Z0-9/\\.\\-_]+(\\.js|\\.css|\\.less)(\\?[a-zA-Z0-9\\.=]+)?)");
-            Matcher matcher = pattern.matcher(historylink);
-            if(matcher.find()){
-                fullLink.append(matcher.group());
-                start += matcher.start();
-                end -= (historylink.length() - matcher.end());
-            }
-            else{
-                LoggerFactory.error("链接中搜索不到url："+historylink);
-                throw new RuntimeException("no support");
-                //fullLink.append (historylink);
+            if(isOldLad==false){
+                Pattern pattern = Pattern.compile("([a-zA-Z0-9/\\.\\-_]+(\\.js|\\.css|\\.less)(\\?[a-zA-Z0-9\\.=,\\+\\-]+)?)");
+                Matcher matcher = pattern.matcher(historylink);
+                if(matcher.find()){
+                    fullLink.append(matcher.group());
+                    start += matcher.start();
+                    end -= (historylink.length() - matcher.end());
+                }
+                else{
+                    LoggerFactory.error("链接中搜索不到url："+historylink+",html:"+pageInfo.getFile().getName());
+                    System.exit(-1);
+                    //throw new RuntimeException("no support");
+                    //fullLink.append (historylink);
+                }
+            }else{
+                // 相对
+                //支持常量名称 version
+                fullLink.append (historylink);
+                /*if (globalPrefixPath.startsWith (HTML_URL_SEPARATOR)) {
+                    fullLink.append (globalPrefixPath.replaceFirst (HTML_URL_SEPARATOR,""));
+                }
+                else {
+                    fullLink.append (globalPrefixPath);
+                }*/
             }
 
-            // 相对
-            //支持常量名称 version
-            //fullLink.append (historylink);
-          /*  if (globalPrefixPath.startsWith (HTML_URL_SEPARATOR)) {
-                fullLink.append (globalPrefixPath.replaceFirst (HTML_URL_SEPARATOR,""));
-            }
-            else {
-                fullLink.append (globalPrefixPath);
-            }*/
+
+
             fullLink = new StringBuilder (removeUrlPar (fullLink.toString ()));
             if (fullLink.indexOf (HTML_URL_SEPARATOR,0) == 0) {
                 fullLink.delete (0,1);
@@ -633,7 +643,7 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
             instatVersion (sb,start,end,historylink,fullLink.toString (),jcvFileInfo,processSuccessFiles,jCVConfig);
         }
         else{
-            LoggerFactory.error("此url找不到文件："+historylink+",file:"+fullLink);
+            LoggerFactory.error("此url找不到md5文件："+historylink+",md5file:"+fullLink+",html:"+pageInfo.getFile().getName());
         }
         
         return 0;

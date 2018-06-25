@@ -24,7 +24,6 @@ public class HtmlUtils {
     public static void getHtmllabDocposition(final StringBuffer sb,DocPosition dp){
         char[] cas = sb.toString().toCharArray();
         int startLadlenth=dp.getStartLab().length();
-        int endlabLenth=dp.getEndLad().length();
         dp.setStartPos(checkNextStrIndex(cas, dp.getIndexPos(),  dp.getStartLab()));
         
         if (dp.getStartPos() == -1) {
@@ -33,10 +32,15 @@ public class HtmlUtils {
         }
        
         dp.setEndPos(checkNextStrIndex(cas, dp.getStartPos()+startLadlenth, dp.getEndLad()));
-        
         if(dp.getEndPos()!=-1){
-            dp.setEndPos(dp.getEndPos()+endlabLenth);
-          
+            dp.setEndPos(dp.getEndPos()+dp.getEndLad().length());
+        }
+        else{
+            dp.setEndPos(checkNextStrIndex(cas, dp.getStartPos()+startLadlenth, dp.getEndLadNext()));
+            if(dp.getEndPos()!=-1){
+                dp.setEndPos(dp.getEndPos()+dp.getEndLadNext().length());
+            }
+            dp.setOldLad(true);
         }
         
         if(null!=dp.getCheckEndLad() && !"".equals(dp.getCheckEndLad())){

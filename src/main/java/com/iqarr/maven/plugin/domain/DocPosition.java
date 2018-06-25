@@ -23,6 +23,10 @@ public class DocPosition {
     
     /** The end lad. */
     private String endLad;
+    /** when end lab not found , search endLabNext */
+    private String endLadNext;
+    /** 标识是否使用 endLadNext 如果为true，可以不用正则搜索url */
+    private boolean isOldLad = false;
     
     /**是否找到 **/
     private boolean findIt;
@@ -150,8 +154,20 @@ public class DocPosition {
     public void setFindIt(boolean findIt) {
         this.findIt = findIt;
     }
-    
-    
-    
-    
+
+    public String getEndLadNext() {
+        return endLadNext;
+    }
+
+    public void setEndLadNext(String endLadNext) {
+        this.endLadNext = endLadNext;
+    }
+
+    public boolean isOldLad() {
+        return isOldLad;
+    }
+
+    public void setOldLad(boolean oldLad) {
+        isOldLad = oldLad;
+    }
 }
