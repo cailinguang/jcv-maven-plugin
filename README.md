@@ -45,3 +45,52 @@ mvn clean package
 ### 参数说明
 
 详细参数说明: [参数说明](/doc/README_PARAMETER.md "参数说明")
+
+
+### 针对 thymeleaf
+1. 修改支持th:src
+2. 修改支持th:href
+3. 修改在表达式的链接中通过正则搜索url，如${/abc/a.css} 只匹配 /abc/a.css
+
+使用方式
+
+```
+<!--jcv-maven-plugin -->
+<plugin>
+    <groupId>com.sge.maven.plugin</groupId>
+    <artifactId>jcv-maven-plugin</artifactId>
+    <version>2.0.0</version>
+    <executions>
+        <execution>
+            <id>process</id>
+            <phase>process-resources</phase>
+            <goals>
+                <goal>process</goal>
+            </goals>
+        </execution>
+    </executions>
+    <configuration>
+        <suffixs>
+            <param>html</param>
+        </suffixs>
+        <!-- 清理html 页面注释-->
+        <clearPageComment>false</clearPageComment>
+        <globaJsMethod>MD5_METHOD</globaJsMethod>
+        <globaCssMethod>MD5_METHOD</globaCssMethod>
+        <!-- 压缩js-->
+        <compressionJs>false</compressionJs>
+        <!-- 压缩css-->
+        <compressionCss>false</compressionCss>
+    </configuration>
+</plugin>
+<!--war plugin config-->
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-war-plugin</artifactId>
+    <version>2.1.1</version>
+    <configuration>
+        <warSourceDirectory>src/main/webapp</warSourceDirectory>
+        <warSourceExcludes>**/*.html</warSourceExcludes>
+    </configuration>
+</plugin>
+```

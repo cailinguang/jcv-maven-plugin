@@ -238,6 +238,7 @@ public class DefaultProcessFactory extends AbstractProcessFactory {
         }
         List<String> su = new ArrayList<String>();
         su.add("css");
+        su.add("less");
         String globaCsslPrefixPath = jCVConfig.getGlobaCsslPrefixPath();
         if (globaCsslPrefixPath != null && !"".equals(globaCsslPrefixPath)) {
             if (cssRoot.endsWith(FileUtils.getSystemFileSeparator())) {

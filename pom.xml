@@ -2,15 +2,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.iqarr.maven.plugin</groupId>
+	<groupId>com.sge.maven.plugin</groupId>
 	<artifactId>jcv-maven-plugin</artifactId>
-	<version>1.0.2</version>
+	<version>2.0.0</version>
 	<packaging>maven-plugin</packaging>
 
 
 	<name>jcv-maven-plugin</name>
-	<description>A tool for cleaning up web pages, and adding and compressing js version numbers and css version numbers</description>
-	<url>https://github.com/byzy/jcv-maven-plugin</url>
+	<description>sge add css and js md5 version for thymeleaf</description>
+	<url>https://github.com/cailinguang/jcv-maven-plugin</url>
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -22,12 +22,16 @@
 			<name>zhangyong</name>
 			<email>zybygm@gmail.com</email>
 		</developer>
+        <developer>
+            <name>cailinguang</name>
+            <email>user_cai@126.com</email>
+        </developer>
 	</developers>
-	<scm>
-		<connection>scm:git:git@github.com:byzy/jcv-maven-plugin.git</connection>
-		<developerConnection>scm:git:git@github.com:byzy/jcv-maven-plugin.git</developerConnection>
-		<url>git@github.com:byzy/jcv-maven-plugin.git</url>
-	</scm>
+    <scm>
+        <connection>scm:git:git://github.com/cailinguang/jcv-maven-plugin.git</connection>
+        <developerConnection>scm:git:ssh://github.com:cailinguang/jcv-maven-plugin.git</developerConnection>
+        <url>https://github.com/cailinguang/jcv-maven-plugin/tree/master</url>
+    </scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

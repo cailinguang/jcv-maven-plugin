@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.mozilla.javascript.EvaluatorException;
 
@@ -43,12 +45,12 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
 	protected final static String HTML_URL_SEPARATOR = "/";
 	
 	protected final static String HTML_JAVASCRIPT_LABLE_START = "<script";
-	protected final static String HTML_JAVASCRIPT_SRC = "src=";
+	protected final static String HTML_JAVASCRIPT_SRC = "th:src=";
 	protected final static String HTML_JAVASCRIPT_END = ">";
 	
 	// css
 	protected final static String HTML_CSS_LABLE_START = "<link";
-	protected final static String HTML_CSS_LABLE_SRC = "href=";
+	protected final static String HTML_CSS_LABLE_SRC = "th:href=";
 	protected final static String HTML_CSS_LABLE_END = ">";
 	
 	// comment
@@ -99,19 +101,23 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
 		  LoggerFactory.info("| |__| | |____   \\  /    ");
 		  LoggerFactory.info(" \\____/ \\_____|   \\/    ");
 		  LoggerFactory.info("                         ");
-		  LoggerFactory.info("                         ");
-	        
-		  LoggerFactory.info("find suffixs size:"+jCVConfig.getPageSuffixs ().size ());
-		 // LoggetFactory.info("build webRootName:"+jCVConfig.getOutDirRoot ());
+          LoggerFactory.info("  this is SGE js and css files add md5 version plugin ");
+          LoggerFactory.info("  Please check for error messages !!!!!!!! ");
+          LoggerFactory.info("                         ");
+          LoggerFactory.info("                         ");
+
+
+          LoggerFactory.info("find suffixs size:"+jCVConfig.getPageSuffixs ().size ());
+		  // LoggetFactory.info("build webRootName:"+jCVConfig.getOutDirRoot ());
 		  LoggerFactory.info("build sourceEncoding:"+jCVConfig.getSourceEncoding ());
-	        timeStart=new Date ().getTime ();
-	        
-	        //显示日志
-	        //LoggetFactory.info("web app Dir:"+webappDirectory.getPath());
-	        LoggerFactory.info("out Dir:"+jCVConfig.getOutDirRoot ());
-	        LoggerFactory.info("system is linux:"+FileUtils.getSystemFileSeparatorIslinux());
-	        LoggerFactory.info("css method is :"+jCVConfig.getCssMethod ());
-	        LoggerFactory.info("js method is :"+jCVConfig.getJsMethod ());
+	      timeStart=new Date ().getTime ();
+
+	      //显示日志
+	      //LoggetFactory.info("web app Dir:"+webappDirectory.getPath());
+	      LoggerFactory.info("out Dir:"+jCVConfig.getOutDirRoot ());
+	      LoggerFactory.info("system is linux:"+FileUtils.getSystemFileSeparatorIslinux());
+	      LoggerFactory.info("css method is :"+jCVConfig.getCssMethod ());
+	      LoggerFactory.info("js method is :"+jCVConfig.getJsMethod ());
 	}
 	
 	
@@ -213,10 +219,10 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
         
         
         // 不处理后缀为.min.*的文件
-        if (jcv.getFileName ().indexOf (jCVConfig.getSkipFileNameSuffix () + "." + jcv.getFileType ()) != -1) {
+        /*if (jcv.getFileName ().indexOf (jCVConfig.getSkipFileNameSuffix () + "." + jcv.getFileType ()) != -1) {
             LoggerFactory.info ("The suffix is "+jCVConfig.getSkipFileNameSuffix ()+" ,not processed:" + jcv.getFileName ());
             return true;
-        }
+        }*/
         
         if (JCVFileInfo.CSS.equals (jcv.getFileType ())) {
             
@@ -541,7 +547,7 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
      * @param jCVConfig the j cv config
      * @return the int
      */
-    private int processlink(StringBuffer sb, final int start, final int end, final String historylink, final String fileType, List<JCVFileInfo> processSuccessFiles, final JCVConfig jCVConfig) {
+    private int processlink(StringBuffer sb, int start, int end, final String historylink, final String fileType, List<JCVFileInfo> processSuccessFiles, final JCVConfig jCVConfig) {
         
         JCVFileInfo jcvFileInfo = null;
         StringBuilder fullLink = new StringBuilder ();
@@ -591,9 +597,24 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
             
         }
         else {
+            //LoggerFactory.info ("historylink :" + historylink);
+            //clg edit
+            Pattern pattern = Pattern.compile("([a-zA-Z0-9/\\.\\-_]+(\\.js|\\.css|\\.less)(\\?[a-zA-Z0-9\\.=]+)?)");
+            Matcher matcher = pattern.matcher(historylink);
+            if(matcher.find()){
+                fullLink.append(matcher.group());
+                start += matcher.start();
+                end -= (historylink.length() - matcher.end());
+            }
+            else{
+                LoggerFactory.error("链接中搜索不到url："+historylink);
+                throw new RuntimeException("no support");
+                //fullLink.append (historylink);
+            }
+
             // 相对
             //支持常量名称 version
-            fullLink.append (historylink);
+            //fullLink.append (historylink);
           /*  if (globalPrefixPath.startsWith (HTML_URL_SEPARATOR)) {
                 fullLink.append (globalPrefixPath.replaceFirst (HTML_URL_SEPARATOR,""));
             }
@@ -610,6 +631,9 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
         
         if (jcvFileInfo != null && null != fullLink && !"".equals (fullLink.toString ())) {
             instatVersion (sb,start,end,historylink,fullLink.toString (),jcvFileInfo,processSuccessFiles,jCVConfig);
+        }
+        else{
+            LoggerFactory.error("此url找不到文件："+historylink+",file:"+fullLink);
         }
         
         return 0;
@@ -836,8 +860,8 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
                 if (historylink.indexOf ("?") > 0) {
                     
                     par = getUrlpPar (historylink);
-                    
-                    versionStr += "?" + jCVConfig.getVersionLable () + "=" + jcvFileInfo.getFileVersion () + "&" + par;
+                    //get request $ ==> $amp;
+                    versionStr += "?" + jCVConfig.getVersionLable () + "=" + jcvFileInfo.getFileVersion () + "$amp;" + par;
                 }
                 else {
                     versionStr += "?" + jCVConfig.getVersionLable () + "=" + jcvFileInfo.getFileVersion ();
@@ -873,7 +897,8 @@ public abstract class AbstractProcessFactory implements ProcessFactory {
             }
             else {
                 if (historylink.indexOf ("?") > 0) {
-                    versionStr = "&" + jCVConfig.getVersionLable () + "=" + jcvFileInfo.getFileVersion ();
+                    //get request $ ==> $amp;
+                    versionStr = "&amp;" + jCVConfig.getVersionLable () + "=" + jcvFileInfo.getFileVersion ();
                 }
                 else {
                     versionStr = "?" + jCVConfig.getVersionLable () + "=" + jcvFileInfo.getFileVersion ();

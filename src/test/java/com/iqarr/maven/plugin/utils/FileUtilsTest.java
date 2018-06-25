@@ -33,14 +33,14 @@ public class FileUtilsTest {
     /**
      * Test method for {@link com.iqarr.maven.plugin.utils.FileUtils#testFileLinefeed(java.io.File, java.lang.String)}.
      * @throws IOException 
-     */
+     *//*
     @Test
     public void testTestFileLinefeed() throws IOException {
         char[] testFileLinefeed = FileUtils.testFileLinefeed(new File(this.getClass().getClassLoader().getResource("mac.txt").getPath()) , "utf-8");
         char [] test=new char[1];
         test[0]='\n';
         assertArrayEquals(test , testFileLinefeed);
-    }
+    }*/
     
     /**
      * Test method for {@link com.iqarr.maven.plugin.utils.FileUtils#readToString(File, String)}.
