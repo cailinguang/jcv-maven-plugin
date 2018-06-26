@@ -34,15 +34,12 @@ public class HtmlUtils {
         dp.setEndPos(checkNextStrIndex(cas, dp.getStartPos()+startLadlenth, dp.getEndLad()));
         if(dp.getEndPos()!=-1){
             dp.setEndPos(dp.getEndPos()+dp.getEndLad().length());
-        }
-        else{
-            dp.setEndPos(checkNextStrIndex(cas, dp.getStartPos()+startLadlenth, dp.getEndLadNext()));
-            if(dp.getEndPos()!=-1){
-                dp.setEndPos(dp.getEndPos()+dp.getEndLadNext().length());
+            String thStr = sb.substring(dp.getEndPos()-dp.getEndLad().length()-3,dp.getEndPos()-dp.getEndLad().length());
+            if(thStr.equals("th:")){
+                dp.setUseRegSearch(true);
             }
-            dp.setOldLad(true);
         }
-        
+
         if(null!=dp.getCheckEndLad() && !"".equals(dp.getCheckEndLad())){
             int checkEnd=checkNextStrIndex(cas, dp.getStartPos()+startLadlenth, dp.getCheckEndLad());
             if(dp.getEndPos()==-1 || checkEnd==-1){
